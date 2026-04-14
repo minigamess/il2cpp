@@ -9,8 +9,12 @@ fi
 out="/repo/${UNITY_VERSION}"
 
 if [[ -d "${out}" ]]; then
-  echo "Target folder '${out}' already exists"
-  exit 0
+  if [[ "${FORCE:-false}" == "true" ]]; then
+    rm -rf "${out}"
+  else
+    echo "Target folder '${out}' already exists"
+    exit 0
+  fi
 fi
 
 mkdir -p "${out}"

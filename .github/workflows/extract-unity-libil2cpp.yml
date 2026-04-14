@@ -7,6 +7,11 @@ on:
         description: "Unity version (for example: 2021.3.40f1)"
         required: true
         type: string
+      force:
+        description: "Force overwrite if target directory exists"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -16,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UNITY_VERSION: ${{ github.event.inputs.unity_version }}
+      FORCE: ${{ github.event.inputs.force }}
       UNITY_IMAGE: unityci/editor:ubuntu-${{ github.event.inputs.unity_version }}-linux-il2cpp-3
 
     steps:
@@ -46,10 +52,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -d "${UNITY_VERSION}" ]]; then
+          if [[ -d "${UNITY_VERSION}" && "${FORCE}" != "true" ]]; then
             echo "Target folder '${UNITY_VERSION}' already exists. Skip extraction."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
+            if [[ -d "${UNITY_VERSION}" && "${FORCE}" == "true" ]]; then
+              echo "Target folder '${UNITY_VERSION}' exists, but force=true so it will be overwritten."
+            fi
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -58,7 +67,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker run --rm -e UNITY_VERSION -v "${GITHUB_WORKSPACE}:/repo" "${UNITY_IMAGE}" /bin/bash "/repo/scripts/extract-unity-libil2cpp.sh"
+          docker run --rm -e UNITY_VERSION -e FORCE -v "${GITHUB_WORKSPACE}:/repo" "${UNITY_IMAGE}" /bin/bash "/repo/scripts/extract-unity-libil2cpp.sh"
 
       - name: Commit and push
         if: steps.precheck.outputs.skip == 'false'
