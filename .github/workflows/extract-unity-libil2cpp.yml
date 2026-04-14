@@ -23,11 +23,32 @@ jobs:
       UNITY_VERSION: ${{ github.event.inputs.unity_version }}
       FORCE: ${{ github.event.inputs.force }}
       UNITY_IMAGE: unityci/editor:ubuntu-${{ github.event.inputs.unity_version }}-linux-il2cpp-3
+      MIN_FREE_GB: 25
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check available disk space
+        id: disk_check
+        shell: bash
+        run: |
+          set -euo pipefail
+          free_kb="$(df -Pk / | awk 'NR==2 {print $4}')"
+          free_gb="$((free_kb / 1024 / 1024))"
+          echo "Current free disk space: ${free_gb} GB"
+
+          if (( free_gb < MIN_FREE_GB )); then
+            echo "need_cleanup=true" >> "$GITHUB_OUTPUT"
+            echo "free_gb=${free_gb}" >> "$GITHUB_OUTPUT"
+            echo "Free space is below ${MIN_FREE_GB} GB, running cleanup step."
+          else
+            echo "need_cleanup=false" >> "$GITHUB_OUTPUT"
+            echo "free_gb=${free_gb}" >> "$GITHUB_OUTPUT"
+            echo "Free space is sufficient, skipping cleanup step."
+          fi
+
       - name: Free up disk space
+        if: steps.disk_check.outputs.need_cleanup == 'true'
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
           android: true
