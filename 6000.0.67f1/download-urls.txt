@@ -1,0 +1,4 @@
+changeset=78a1c2bbeb6a
+mac_mono=https://download.unity3d.com/download_unity/78a1c2bbeb6a/MacEditorTargetInstaller/UnitySetup-Mac-Mono-Support-for-Editor-6000.0.67f1.pkg
+mac_il2cpp=https://download.unity3d.com/download_unity/78a1c2bbeb6a/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-6000.0.67f1.pkg
+linux_il2cpp=https://download.unity3d.com/download_unity/78a1c2bbeb6a/LinuxEditorTargetInstaller/UnitySetup-Linux-IL2CPP-Support-for-Editor-6000.0.67f1.tar.xz
