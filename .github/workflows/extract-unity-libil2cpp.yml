@@ -1,0 +1,71 @@
+name: Extract Unity libil2cpp
+
+on:
+  workflow_dispatch:
+    inputs:
+      unity_version:
+        description: "Unity version (for example: 2021.3.40f1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    env:
+      UNITY_VERSION: ${{ github.event.inputs.unity_version }}
+      UNITY_IMAGE: unityci/editor:ubuntu-${{ github.event.inputs.unity_version }}-linux-il2cpp-3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate input
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${UNITY_VERSION}" ]]; then
+            echo "unity_version is required"
+            exit 1
+          fi
+          if [[ "${UNITY_VERSION}" == *"/"* ]]; then
+            echo "unity_version must not contain '/'"
+            exit 1
+          fi
+
+      - name: Skip when target folder exists
+        id: precheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d "${UNITY_VERSION}" ]]; then
+            echo "Target folder '${UNITY_VERSION}' already exists. Skip extraction."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract libil2cpp and baselib.a
+        if: steps.precheck.outputs.skip == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm -e UNITY_VERSION -v "${GITHUB_WORKSPACE}:/repo" "${UNITY_IMAGE}" /bin/bash "/repo/scripts/extract-unity-libil2cpp.sh"
+
+      - name: Commit and push
+        if: steps.precheck.outputs.skip == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add "${UNITY_VERSION}"
+          if git diff --cached --quiet; then
+            echo "No file changes detected."
+            exit 0
+          fi
+
+          git commit -m "Add Unity ${UNITY_VERSION} libil2cpp and baselib.a"
+          git push
