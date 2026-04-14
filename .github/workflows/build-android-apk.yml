@@ -20,15 +20,6 @@ jobs:
         with:
           lfs: true
 
-      - name: Cache Unity Library
-        uses: actions/cache@v4
-        with:
-          path: UnityProj/Library
-          key: Library-Android-${{ inputs.unity_version }}-${{ hashFiles('UnityProj/Assets/**', 'UnityProj/Packages/**', 'UnityProj/ProjectSettings/**') }}
-          restore-keys: |
-            Library-Android-${{ inputs.unity_version }}-
-            Library-Android-
-
       - name: Build Android APK
         uses: game-ci/unity-builder@v4
         env:
