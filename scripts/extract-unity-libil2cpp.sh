@@ -59,6 +59,14 @@ cp "${modules_src}" "${out}/modules.json"
 mkdir -p "${out}/Editor/Data/il2cpp"
 cp -a "${editor_root}/Data/il2cpp/libil2cpp" "${out}/Editor/Data/il2cpp/"
 
+external_src="${editor_root}/Data/il2cpp/external"
+if [[ -d "${external_src}" ]]; then
+  cp -a "${external_src}" "${out}/Editor/Data/il2cpp/"
+else
+  echo "Could not locate il2cpp/external"
+  exit 1
+fi
+
 baselib_path="$(find "${editor_root}/Data/PlaybackEngines/LinuxStandaloneSupport/Variations" -type f -name baselib.a | sort | head -n 1)"
 if [[ -z "${baselib_path}" ]]; then
   echo "Could not find baselib.a"
