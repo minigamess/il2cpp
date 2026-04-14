@@ -1,0 +1,49 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      unity_version:
+        description: "Unity version (for example: 2021.3.40f1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: UnityProj/Library
+          key: Library-Android-${{ inputs.unity_version }}-${{ hashFiles('UnityProj/Assets/**', 'UnityProj/Packages/**', 'UnityProj/ProjectSettings/**') }}
+          restore-keys: |
+            Library-Android-${{ inputs.unity_version }}-
+            Library-Android-
+
+      - name: Build Android APK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: UnityProj
+          unityVersion: ${{ inputs.unity_version }}
+          targetPlatform: Android
+          androidExportType: androidPackage
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ inputs.unity_version }}
+          path: build/Android
+          if-no-files-found: error
