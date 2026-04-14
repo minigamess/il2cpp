@@ -12,7 +12,6 @@
 *.mat
 *.anim
 *.prefab
-!empty.unity
 *.physicMaterial
 *.controller
 .DS_Store
