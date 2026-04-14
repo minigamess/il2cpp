@@ -30,7 +30,7 @@ namespace Editor
             EditorUserBuildSettings.androidCreateSymbolsZip = true;
 #else
 #endif
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             
             var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
             if (report.summary.result != BuildResult.Succeeded)
