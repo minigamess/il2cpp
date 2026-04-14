@@ -1,0 +1,4 @@
+changeset=9d8bd91adc0a
+mac_mono=https://download.unity3d.com/download_unity/9d8bd91adc0a/MacEditorTargetInstaller/UnitySetup-Mac-Mono-Support-for-Editor-2022.3.57f1.pkg
+mac_il2cpp=https://download.unity3d.com/download_unity/9d8bd91adc0a/MacEditorTargetInstaller/UnitySetup-Mac-IL2CPP-Support-for-Editor-2022.3.57f1.pkg
+linux_il2cpp=https://download.unity3d.com/download_unity/9d8bd91adc0a/LinuxEditorTargetInstaller/UnitySetup-Linux-IL2CPP-Support-for-Editor-2022.3.57f1.tar.xz
