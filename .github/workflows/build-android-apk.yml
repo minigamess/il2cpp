@@ -36,5 +36,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apk-${{ inputs.unity_version }}
-          path: build/Android
+          path: UnityProj/Builds/*.apk
           if-no-files-found: error
