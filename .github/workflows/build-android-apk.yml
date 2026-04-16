@@ -32,18 +32,33 @@ jobs:
           targetPlatform: Android
           buildMethod: Editor.BuildCli.PerformBuild
 
-      - name: Upload Android APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apk-${{ inputs.unity_version }}
-          path: UnityProj/Builds/*.apk
-          if-no-files-found: error
+      - name: Verify APK output exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
 
-      - name: Upload Android symbols
+          apk_files=(UnityProj/Builds/*.apk)
+          if (( ${#apk_files[@]} == 0 )); then
+            echo "No APK was generated under UnityProj/Builds."
+            echo "Current UnityProj/Builds contents:"
+            if [[ -d UnityProj/Builds ]]; then
+              ls -R UnityProj/Builds
+            else
+              echo "UnityProj/Builds directory does not exist."
+            fi
+            exit 1
+          fi
+
+          echo "Found APK(s):"
+          printf ' - %s\n' "${apk_files[@]}"
+
+      - name: Upload Android build outputs
         uses: actions/upload-artifact@v4
         with:
-          name: android-symbols-${{ inputs.unity_version }}
+          name: android-build-${{ inputs.unity_version }}
           path: |
+            UnityProj/Builds/*.apk
             UnityProj/Builds/**/*symbols*.zip
             UnityProj/Builds/**/symbols.zip
             UnityProj/Builds/**/*.symbols
