@@ -32,9 +32,20 @@ jobs:
           targetPlatform: Android
           buildMethod: Editor.BuildCli.PerformBuild
 
-      - name: Upload Android artifacts
+      - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk-${{ inputs.unity_version }}
           path: UnityProj/Builds/*.apk
+          if-no-files-found: error
+
+      - name: Upload Android symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-symbols-${{ inputs.unity_version }}
+          path: |
+            UnityProj/Builds/**/*symbols*.zip
+            UnityProj/Builds/**/symbols.zip
+            UnityProj/Builds/**/*.symbols
+            UnityProj/Builds/**/*.sym
           if-no-files-found: error
