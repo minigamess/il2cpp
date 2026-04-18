@@ -16,6 +16,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: repo-write-queue-extract-unity-libil2cpp
+  cancel-in-progress: false
+
 jobs:
   extract:
     runs-on: ubuntu-latest
@@ -105,4 +109,31 @@ jobs:
           fi
 
           git commit -m "Add Unity ${UNITY_VERSION} extracted files"
-          git push
+
+          branch="${GITHUB_REF_NAME}"
+          max_retries=5
+          retry_delay=3
+
+          for attempt in $(seq 1 "${max_retries}"); do
+            echo "Push attempt ${attempt}/${max_retries}"
+
+            git fetch origin "${branch}"
+            if ! git rebase "origin/${branch}"; then
+              git rebase --abort || true
+              echo "Rebase failed due to conflicts. Manual resolution is required."
+              exit 1
+            fi
+
+            if git push origin "HEAD:${branch}"; then
+              echo "Push succeeded."
+              exit 0
+            fi
+
+            if (( attempt == max_retries )); then
+              echo "Push failed after ${max_retries} attempts."
+              exit 1
+            fi
+
+            echo "Push conflict detected. Retrying in ${retry_delay}s..."
+            sleep "${retry_delay}"
+          done
